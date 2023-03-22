@@ -113,7 +113,14 @@ impl Chip8 {
         }
     }
     
-    
+    fn op_4xkk(&mut self){
+        let vx: u16 = (self.opcode & 0x0F00) >> 8;
+        let byte: u16 = self.opcode & 0x00FF;
+        
+        if self.registers[vx as usize] != byte as u8{
+            self.pc += 2;
+        }
+    }    
     
 }
 
