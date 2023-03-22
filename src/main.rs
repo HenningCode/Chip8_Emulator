@@ -30,7 +30,7 @@ struct Chip8{
     index: u16,
     pc: usize,
     stack: [u16; 16],
-    sp: u8,
+    sp: usize,
     delay_timer: u8,
     sound_timer: u8,
     keypad: [u8; 16],
@@ -76,9 +76,45 @@ impl Chip8 {
         rand::thread_rng().gen_range(0..256)
     }
     
+    // CLS - Clear the display
     fn op_00e0(&mut self){
-        self.video.iter_mut().for_each(|m| *m = 0)
+        self.video.iter_mut().for_each(|m| *m = 0);
     }
+    
+    // RET - return from a subroutine
+    fn op_00ee(&mut self){
+        self.sp -= 1;
+        self.pc = self.stack[self.sp] as usize;
+    }
+    
+    // JP addr -  Jump to location nnn. 
+    // The interpreter sets the program counter to nnn
+    fn op_1nnn(&mut self){
+        let address: u16 = self.opcode & 0x0FFF;
+        self.pc = address as usize;
+    }
+    
+    // CALL addr - Call subroutine at nnn
+    // ???
+    fn op_2nnn(&mut self){
+        let address: u16 = self.opcode & 0x0FFF;
+        self.stack[self.sp] = self.pc as u16;
+        self.sp += 1;
+        self.pc = address as usize;
+    }
+    
+    // Skippen the next iteration if Vx == kk
+    fn op_3xkk(&mut self){
+        let vx: u16 = (self.opcode & 0x0F00) >> 8;
+        let byte: u16 = self.opcode & 0x00FF;
+        
+        if self.registers[vx as usize] == byte as u8{
+            self.pc += 2;
+        }
+    }
+    
+    
+    
 }
 
 
