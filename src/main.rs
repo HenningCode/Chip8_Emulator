@@ -103,7 +103,7 @@ impl Chip8 {
         self.pc = address as usize;
     }
     
-    // Skippen the next iteration if Vx == kk
+    // Skip the next instruction if Vx == kk
     fn op_3xkk(&mut self){
         let vx: u16 = (self.opcode & 0x0F00) >> 8;
         let byte: u16 = self.opcode & 0x00FF;
@@ -113,6 +113,7 @@ impl Chip8 {
         }
     }
     
+    // Skip next instruction if Vx != kk 
     fn op_4xkk(&mut self){
         let vx: u16 = (self.opcode & 0x0F00) >> 8;
         let byte: u16 = self.opcode & 0x00FF;
@@ -120,7 +121,67 @@ impl Chip8 {
         if self.registers[vx as usize] != byte as u8{
             self.pc += 2;
         }
-    }    
+    } 
+    
+    // Skip next instruction if Vx == Vy
+    fn op_5xy0(&mut self){
+        let vx: u16 = (self.opcode & 0x0F00) >> 8;
+        let vy: u16 = (self.opcode & 0x00F0) >> 4;
+
+        if self.registers[vx as usize] == self.registers[vy as usize] {
+            self.pc += 2;
+        }
+    }
+
+    // Set Vx = kk
+    fn op_6xkk(&mut self){
+        let vx = (self.opcode & 0x0F00) >> 8;
+        let byte = self.opcode & 0x00FF;
+
+        self.registers[vx as usize] = byte as u8;
+    }
+
+    // Set Vx = Vx + kk
+    fn op_7xkk(&mut self){
+        let vx = (self.opcode & 0x0F00) >> 8;
+        let byte = self.opcode & 0x00FF;
+
+        self.registers[vx as usize] += byte as u8;
+    }
+
+    // Set Vx = Vy  
+    fn op_8xy0(&mut self){
+        let vx: u16 = (self.opcode & 0x0F00) >> 8;
+        let vy: u16 = (self.opcode & 0x00F0) >> 4;
+
+        self.registers[vx as usize] = vy as u8;
+    }
+
+    // Set Vx = Vx | Vy
+    fn op_8xy1(&mut self){
+        let vx: u16 = (self.opcode & 0x0F00) >> 8;
+        let vy: u16 = (self.opcode & 0x00F0) >> 4;
+
+        self.registers[vx as usize] |= vy as u8;
+    }
+
+    // Set Vx = Vx & Vy
+    fn op_8xy2(&mut self){
+        let vx: u16 = (self.opcode & 0x0F00) >> 8;
+        let vy: u16 = (self.opcode & 0x00F0) >> 4;
+
+        self.registers[vx as usize] &= vy as u8;
+    }
+
+    // Set Vx = Vx ^ Vy
+    fn op_8xy3(&mut self){
+        let vx: u16 = (self.opcode & 0x0F00) >> 8;
+        let vy: u16 = (self.opcode & 0x00F0) >> 4;
+
+        self.registers[vx as usize] ^= vy as u8;
+    }
+
+
     
 }
 
