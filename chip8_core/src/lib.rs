@@ -262,10 +262,26 @@ impl Emu {
                 self.v_reg[0xF] = msb;
             },
 
+            // Skip if VX != VY
+            (9,_,_,0) => {
+                let x = digit2 as usize;
+                let y = digit3 as usize;
+                if self.v_reg[x] != self.v_reg[y] {
+                    self.pc += 2;
+                }
+            },
 
+            // I = NNN
+            (0xA,_,_,_) => {
+                let nnn = op & 0xFFF;
+                self.i_reg = nnn;
+            },
 
-
-            
+            // JMP V0 + NNN
+            (0xB,_,_,_) => {
+                let nnn = op & 0xFFF;
+                self.pc = (self.v_reg[0] as u16) + nnn;
+            },            
 
             (_,_,_,_) => unimplemented!("Unimplemented opcode: {}", op),
         }
